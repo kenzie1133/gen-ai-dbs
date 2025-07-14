@@ -1,1 +1,1 @@
-# gen-ai-dbs
+# gen-ai lesson for prediction model for DBS share prices.
