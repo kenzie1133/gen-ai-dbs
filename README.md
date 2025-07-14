@@ -1,1 +1,2 @@
-# gen-ai lesson for prediction model for DBS share prices.
+# Module 4: gen-ai lesson 
+A prediction model for DBS share prices using chatbot.
