@@ -3,8 +3,12 @@ import joblib
 from groq import Groq
 import requests
 
-# import os
+import os
+
 # os.environ['GROQ_API_KEY'] = os.getenv("groq")
+
+# Retrieve the bot token from an environment variable
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 
 app = Flask(__name__)
 
