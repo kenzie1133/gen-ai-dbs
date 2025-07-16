@@ -2,13 +2,9 @@ from flask import Flask, render_template, request
 import joblib
 from groq import Groq
 import requests
-
 import os
 
-# os.environ['GROQ_API_KEY'] = os.getenv("groq")
-
-# Retrieve the bot token from an environment variable
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN') # Retrieve TELEGRAM bot token.
 
 app = Flask(__name__)
 
@@ -34,8 +30,19 @@ def deepseek():
 def dbs():
     return(render_template("dbs.html"))
 
-@app.route("/telegram",methods=["GET","POST"])
-def telegram():
+
+@app.route("/prediction",methods=["GET","POST"])
+def prediction():
+    q = float(request.form.get("q"))
+    # load model
+    model = joblib.load("dbs.jl")
+    # make prediction
+    pred = model.predict([[q]])
+    return(render_template("prediction.html",r=pred))
+
+
+@app.route("/start_telegram",methods=["GET","POST"])
+def start_telegram():
 
     domain_url = 'https://gen-ai-dbs.onrender.com'
 
@@ -49,11 +56,29 @@ def telegram():
 
     if webhook_response.status_code == 200:
         # set status message
-        status = "The telegram bot is running. Please check with the telegram bot. @gemini_tt_bot"
+        status = "The telegram bot is running. Please check with the telegram bot. @dsai_kz_ft1"
     else:
         status = "Failed to start the telegram bot. Please check the logs."
     
     return(render_template("telegram.html", status=status))
+
+@app.route("/stop_telegram",methods=["GET","POST"])
+def stop_telegram():
+
+    domain_url = 'https://gen-ai-dbs.onrender.com'
+
+    # The following line is used to delete the existing webhook URL for the Telegram bot
+    delete_webhook_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/deleteWebhook"
+    webhook_response = requests.post(delete_webhook_url, json={"url": domain_url, "drop_pending_updates": True})
+
+    if webhook_response.status_code == 200:
+        # set status message
+        status = "The telegram bot is stopped. "
+    else:
+        status = "Failed to stop the telegram bot. Please check the logs."
+    
+    return(render_template("telegram.html", status=status))
+
 
 @app.route("/llma_reply",methods=["GET","POST"])
 def llma_reply():
@@ -87,15 +112,6 @@ def deepseek_reply():
     )
     return(render_template("deepseek_reply.html",r=completion_ds.choices[0].message.content))
 
-
-@app.route("/prediction",methods=["GET","POST"])
-def prediction():
-    q = float(request.form.get("q"))
-    # load model
-    model = joblib.load("dbs.jl")
-    # make prediction
-    pred = model.predict([[q]])
-    return(render_template("prediction.html",r=pred))
 
 @app.route("/webhook",methods=["GET","POST"])
 def webhook():
